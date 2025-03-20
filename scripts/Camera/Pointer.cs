@@ -20,11 +20,12 @@ public class Pointer : MonoBehaviour {
                     ray = camera.ScreenPointToRay(Input.mousePosition); // shoots a ray
                     if (Physics.Raycast(ray, out RaycastHit raycastHit)) {
                         if (
-                            camera.TryGetComponent(out Transitioner transitioner) &&
+                            camera.TryGetComponent(out Transitioner<ZenithalTransition> transitioner) &&
                             raycastHit.collider.TryGetComponent(out Transmitter transmitter)
                            )
                         {
-                            transitioner.TransitTo(transmitter.GetTransmittedCell());
+                            transitioner.transition.target = transmitter.GetTransmittedCell();
+                            transitioner.Trig();
                             break;
                         }
                     }
