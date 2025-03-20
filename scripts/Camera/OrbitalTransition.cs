@@ -1,13 +1,34 @@
+using System.Collections;
+using System.Collections.Generic;
+
 using UnityEngine;
 
-public class OrbitalTransition : ZenithalTransition {
-    protected override float OrthoSizeTransit( float k ) {
+public class OrbitalTransion : ZenithalTransition {
+	public float velocity = 1f;
+	public List<ZenithalTransition> innerTransitions;   // LinearTransition isMoving=true
+	public List<ZenithalTransition> outerTransitions;   // LinearTransition isMoving=false  
+														// CircularTransition
+														// LinearTransition isMoving=false
+	List<Transition> transitions;
 
-		if(startSize < endSize) { 
-		}
-		else{
-		}
+	protected override void Init() {
+		Renderer renderer = target.GetComponent<Renderer>();
+		transitions = renderer.isVisible ? innerTransitions : outerTransitions;
+	}
 
-		return Mathf.Sqrt(1 - Mathf.Pow(2*k-1, 2)) * (apexSize - startSize) + startSize;
-    }
+	public void Trig() {
+		StartCoroutine( Exec() );
+	}
+
+	protected IEnumerator Exec() {
+		Init();
+		foreach(ZenithalTransition transition in transitions) {
+			if(transition == null) continue;
+
+			transition.target = target;
+			transition.isDrivenByVelocity = true;
+			transition.velocity = velocity;
+			yield return transition.Exec();
+		}
+	}
 }
