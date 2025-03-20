@@ -1,13 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class LinearTransition : Transitionable {
-    public override float TransitFX(float startSize, float apex, float k) {
-        if (k > 0.5f) {
-            return Mathf.Lerp(apex, startSize, k);
-        } else {
-            return Mathf.Lerp(startSize, apex, k);
-        }
-    }
+public class LinearTransition : ZenithalTransition {	
+	protected override float OrthoSizeTransit( float k ) {
+		return (k > 0.5f) ? Mathf.Lerp( apexSize , startSize , k ) : Mathf.Lerp( startSize , apexSize , k );
+
+	}
 }

@@ -2,19 +2,17 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class Navigator : MonoBehaviour
-{
+public class Navigator : MonoBehaviour {
     List<GameObject> backPile = new List<GameObject>();
     List<GameObject> nextPile = new List<GameObject>();
     GameObject currentSlide;
 
-    Transitioner transitioner;
+	Transitioner<ZenithalTransition> transitioner;
     Ray ray;
 
     bool isTransiting;
 
-    void Update()
-    {
+    void Update() {
         if (Input.GetKeyDown(KeyCode.Backspace)) Go(nextPile, backPile); 
         if (Input.GetKeyDown(KeyCode.Return)) Go(backPile, nextPile);
         if (Input.GetKeyDown(KeyCode.Mouse1)) Pointer();
@@ -25,7 +23,7 @@ public class Navigator : MonoBehaviour
         if (isTransiting) return;
         if (nextPile.Count == 0) return;
 
-        if (! transitioner) transitioner = GetComponent<Transitioner>();
+        if (! transitioner) transitioner = GetComponent<Transitioner<ZenithalTransition>>();
         if (! transitioner) return;
 
         isTransiting = true;
@@ -57,8 +55,8 @@ public class Navigator : MonoBehaviour
                     if (currentSlide) backPile.Add(currentSlide);
                     currentSlide = raycastHit.collider.gameObject;
                     nextPile.Clear();
-
-                    transitioner.TransitTo(transmitter.GetTransmittedCell());
+                    transitioner.transition.target = transmitter.GetTransmittedCell();
+					transitioner.Transit();
                     break;
                 }
             }
