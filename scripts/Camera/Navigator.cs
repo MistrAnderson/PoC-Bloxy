@@ -56,7 +56,7 @@ public class Navigator : MonoBehaviour {
                     currentSlide = raycastHit.collider.gameObject;
                     nextPile.Clear();
                     transitioner.transition.target = transmitter.GetTransmittedCell();
-					transitioner.Transit();
+					transitioner.Trig();
                     break;
                 }
             }
