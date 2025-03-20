@@ -1,6 +1,7 @@
 using UnityEngine;
 
 public class Transitioner : MonoBehaviour {
+    static int transitionCount = 0;
     public Camera cam;
     public Transitionable transition;
 

@@ -2,82 +2,87 @@ using System.Collections;
 using UnityEngine;
 
 public abstract class Transitionable : MonoBehaviour {
-    //Camera cam;
-    [HideInInspector] public Camera cam;
+    [HideInInspector] public Camera camOrtho;
     public float transitonDuration = 3;
-    // public float zoomDuration = 1;
+    public float zoomDuration = 1;
+
+    Vector3 startPos;
+    Vector3 endPos;
+
+    float startSize;
+    float apexSize;
+    float endSize; 
 
     public IEnumerator Exec(GameObject target, Camera cam) {
-        this.cam = cam;
-        Highlightable highlighter = target.GetComponent<Highlightable>();
+        camOrtho = cam;
 
+        startPos = camOrtho.transform.position;
+        endPos = target.transform.position;
+
+        startSize = camOrtho.orthographicSize;
+        apexSize = (endPos - startPos).magnitude / 2;
+        Renderer renderer = target.GetComponent<Renderer>();
+        endSize = renderer.bounds.size.y / 2; 
+
+        Highlightable highlighter = target.GetComponent<Highlightable>();
         if (highlighter) highlighter.Show();
 
-        yield return Transition(target);
-        // yield return Zoom(target);
+        if (renderer.isVisible) {
+            yield return Zoom(isMoving: true);
+        } 
+        else {
+            if (startSize < endSize) {
+                yield return Zoom();
+                yield return Transition();
+            } 
+            else {
+                yield return Transition();
+                yield return Zoom();
+            }
+        }
 
         if (highlighter) highlighter.Unshow();
-        cam.transform.position = target.transform.position;
+        camOrtho.transform.position = endPos;
+        camOrtho.orthographicSize = endSize;
     }
 
-    IEnumerator Transition(GameObject target) {
+    IEnumerator Transition() {
         float timeElapsed = 0;
-        Vector3 startPos = cam.transform.position;
-        Vector3 endPos = target.transform.position;
-
-        float startSize = cam.orthographicSize;
-        float apex = (endPos - startPos).magnitude / 2;
-        float endSize = target.GetComponent<Renderer>().bounds.size.y / 2; 
-        Debug.Log("bounds: " + target.GetComponent<Renderer>().bounds.size);
 
         while (timeElapsed < transitonDuration) {
-            // if (startPos == endPos) timeElapsed = transitonDuration;
-
             float k = timeElapsed / transitonDuration;
 
-            cam.transform.position = Vector3.Lerp(startPos, endPos, k); // move camera to target position
-
-            // Debug.Log("Apex: " + apex + "\nStart Size: " + startSize);
-
-            // Je m'emmerde un peu la
-            // J'ai besoin de trouver une fonction qui fait une courbe a `y` de fin variable
-            if (startSize < apex) {
-                cam.orthographicSize = TransitFX(startSize, apex, k); 
-            } else {
-                cam.orthographicSize = Mathf.Lerp(startSize, endSize, k); // This is the zoom effect
-            }
+            camOrtho.transform.position = Vector3.Lerp(startPos, endPos, k); // move camera to target position
+            if (startSize < apexSize) camOrtho.orthographicSize = TransitFX(startSize, apexSize, k);
 
             timeElapsed += Time.deltaTime;
             yield return null;
         }
 
-        // This finishes the animation,
-        // It snaps the camera to the size of the target
-        cam.orthographicSize = endSize;
+        // Sets the end values as start values for the next animation
+        // Allows chaining
+        startPos = camOrtho.transform.position;
+        startSize = camOrtho.orthographicSize;
     }
 
-    // IEnumerator Zoom(GameObject target) {
-    //     float timeElapsed = 0;
-    //     Vector3 startPos = cam.transform.position;
-    //     Vector3 endPos = target.transform.position;
+    IEnumerator Zoom(bool isMoving = false) {
+        float timeElapsed = 0;
 
-    //     float startSize = cam.orthographicSize;
-    //     float endSize = target.GetComponent<Renderer>().bounds.size.x / 2;
+        while (timeElapsed < zoomDuration) {
+            float k = timeElapsed / zoomDuration;
 
-    //     while (timeElapsed < zoomDuration) {
-    //         if (startSize == endSize) timeElapsed = zoomDuration;
+            if (isMoving) camOrtho.transform.position = Vector3.Lerp(startPos, endPos, k);
+            camOrtho.orthographicSize = Mathf.Lerp(startSize, endSize, k);
 
-    //         float k = timeElapsed / zoomDuration;
+            timeElapsed += Time.deltaTime;
+            yield return null;
+        }
 
-    //         cam.transform.position = Vector3.Lerp(startPos, endPos, k);
-    //         cam.orthographicSize = Mathf.Lerp(startSize, endSize, k);
-
-    //         timeElapsed += Time.deltaTime;
-    //         yield return null;
-    //     }
-
-    //     cam.orthographicSize = endSize;
-    // }
+        // Sets the end values as start values for the next animation
+        // Allows chaining
+        startPos = camOrtho.transform.position;
+        startSize = camOrtho.orthographicSize;
+    }
 
     public abstract float TransitFX(float startSize, float apex, float k);
 }
