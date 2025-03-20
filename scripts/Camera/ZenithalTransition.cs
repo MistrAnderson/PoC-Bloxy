@@ -2,6 +2,11 @@ using UnityEngine;
 
 public class ZenithalTransition : Transition {
 	public GameObject target;
+	
+	public bool isMoving = true;
+
+	public bool isDrivenByVelocity = false;
+	public float velocity = 1f;
 
 	protected float apexSize;
 	protected float startSize;
@@ -13,15 +18,20 @@ public class ZenithalTransition : Transition {
 	protected override void Init() {
 		base.Init();
 
-		Vector3 startPos = source.transform.position;
-		Vector3 endPos = target.transform.position;
+		startPos = source.transform.position;
+		endPos = target.transform.position;
+
+		float distance = (endPos - startPos).magnitude;
+
+		if ( isDrivenByVelocity && velocity > 0f ) transitonDuration = distance / velocity;
 
 		startSize = source.orthographicSize;
-		apexSize = (endPos - startPos).magnitude / 2;
+		apexSize = distance / 2;
+
 		Renderer renderer = target.GetComponent<Renderer>();
 		endSize = renderer.bounds.size.y / 2;
 	}
 	protected override Vector3 PositionTransit( float k ) {
-		return Vector3.Lerp( startPos , endPos , k );
+		return isMoving ? Vector3.Lerp( startPos , endPos , k ) : startPos;
 	}
 }
