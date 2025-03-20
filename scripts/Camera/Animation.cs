@@ -4,7 +4,7 @@ public abstract class Animation : Animation<UnityEngine.Object> { }
 public abstract class Animation<T> : MonoBehaviour where T : UnityEngine.Object {
 	public T source;
 	public float transitonDuration = 0f;
-
+	
 	static int transitionCount = 0;
 
 	protected abstract void Init();
@@ -12,22 +12,20 @@ public abstract class Animation<T> : MonoBehaviour where T : UnityEngine.Object 
 	public void Trig(){
 		StartCoroutine(Exec());
 	}
-	public IEnumerator Exec() {		
+	public IEnumerator Exec() {
 		Init();
-		float timeElapsed = 0;
-		while(timeElapsed < transitonDuration)
-		{
-			float k = timeElapsed / transitonDuration;
 
-			Transit( k );
+		Timer timer = new Timer(transitonDuration);
+		while( timer.progress < 1 ) {
+			Transit( timer.progress );
 
-			timeElapsed += Time.deltaTime;
+			timer.Next();
 			yield return null;
 		}
 
 		// Finalize last iteration
 		Transit( 1 );
-	}
+	}	
 
 	protected virtual void Transit( float k ) {
 		if ( source == null ) source = this;
