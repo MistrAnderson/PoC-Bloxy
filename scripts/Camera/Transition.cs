@@ -3,7 +3,6 @@ using UnityEngine;
 public abstract class Transition : Animation<Camera> {
 	protected override void Init() {
 		if(!source && ! TryGetComponent(out source)  ) {
-			Debug.Log("WTF");
 			return;
 		} 
 	}
