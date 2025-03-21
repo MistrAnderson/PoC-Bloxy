@@ -10,10 +10,7 @@ public class Navigator : MonoBehaviour {
 	Transitioner<ZenithalTransition> transitioner;
     Ray ray;
 
-    bool isTransiting;
-
     void Update() {
-        Debug.Log(Animation.transitionCount);
         if (Animation.isTransiting) return;
 
         if (Input.GetKeyDown(KeyCode.Backspace)) Go(nextPile, backPile); 
@@ -23,8 +20,6 @@ public class Navigator : MonoBehaviour {
     }
 
     void Go(List<GameObject> backPile, List<GameObject> nextPile) {
-        // if (isTransiting) return;
-
         if (nextPile.Count == 0) return;
 
         if (! transitioner) transitioner = GetComponent<Transitioner<ZenithalTransition>>();
@@ -39,7 +34,6 @@ public class Navigator : MonoBehaviour {
     }
 
     void Pointer() {
-        // if (isTransiting) return;
         List<Camera> camerasSorted = Camera.allCameras.OrderByDescending(cam => cam.depth).ToList();
 
         foreach (Camera cam in camerasSorted) {
@@ -57,6 +51,7 @@ public class Navigator : MonoBehaviour {
                     if (currentSlide) backPile.Add(currentSlide);
                     currentSlide = raycastHit.collider.gameObject;
                     nextPile.Clear();
+
                     transitioner.transition.target = transmitter.GetTransmittedCell();
 					transitioner.Trig();
                     break;

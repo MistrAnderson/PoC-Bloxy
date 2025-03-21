@@ -17,10 +17,8 @@ public abstract class Animation<T> : MonoBehaviour where T : Component {
 	public virtual IEnumerator Exec() {
 		Init();
 
-		Debug.Log("In Animation");
 		transitionCount++;
-		Debug.Log(transitionCount);
-		isTransiting = true;
+		Animation.isTransiting = true;
 
 		Timer timer = new Timer(transitonDuration);
 		while( timer.progress < 1 ) {
@@ -34,7 +32,7 @@ public abstract class Animation<T> : MonoBehaviour where T : Component {
 		Transit( 1 );
 		transitionCount--;
 
-		isTransiting = transitionCount > 0;
+		Animation.isTransiting = transitionCount > 0;
 	}	
 
 	protected virtual void Transit( float k ) {
